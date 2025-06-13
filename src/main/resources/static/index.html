@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Spring AI Chat</title>
+  <style>
+    body {
+      background: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: #fff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    .chat-box {
+      background: #f0f0f0;
+      padding: 15px;
+      border-radius: 10px;
+      min-height: 100px;
+      margin-top: 20px;
+      white-space: pre-wrap;
+    }
+
+    .input-area {
+      margin-top: 20px;
+      display: flex;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px 0 0 8px;
+      outline: none;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background: #007bff;
+      color: white;
+      border-radius: 0 8px 8px 0;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #0056b3;
+    }
+
+    .loading {
+      font-style: italic;
+      color: #666;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h2>Chat with Spring AI</h2>
+
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Write a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <div class="loading" id="loading" style="display: none;">Loading...</div>
+
+  <div class="chat-box" id="responseBox">
+    Write something
+  </div>
+</div>
+
+<script>
+  function sendMessage() {
+    const input = document.getElementById("userInput");
+    const message = input.value.trim();
+    const loading = document.getElementById("loading");
+    const box = document.getElementById("responseBox");
+
+    if (!message) {
+      box.textContent = "Write message.";
+      return;
+    }
+
+    loading.style.display = "block";
+    box.textContent = "";
+
+    fetch(`/api/ollama/${encodeURIComponent(message)}`)
+      .then(response => response.text())
+      .then(data => {
+        loading.style.display = "none";
+        box.textContent = data;
+      })
+      .catch(error => {
+        loading.style.display = "none";
+        box.textContent = "Errore: " + error;
+      });
+
+    input.value = "";
+  }
+</script>
+</body>
+</html>
