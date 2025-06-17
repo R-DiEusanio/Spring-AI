@@ -29,10 +29,18 @@
       background: #f0f0f0;
       padding: 15px;
       border-radius: 10px;
-      min-height: 100px;
+      min-height: 180px;
+      max-height: 300px;
       margin-top: 20px;
+      overflow-y: auto;
       white-space: pre-wrap;
+      font-size: 16px;
     }
+
+    .message { margin: 10px 0; }
+    .user { color: #007bff; }
+    .assistant { color: #222; background: #e3f3fe; border-radius:8px; padding:7px 12px; display: inline-block;}
+    .system { color: #777; font-style: italic; }
 
     .input-area {
       margin-top: 20px;
@@ -59,9 +67,8 @@
       transition: background 0.3s;
     }
 
-    button:hover {
-      background: #0056b3;
-    }
+    button:disabled { background: #aaa; cursor: not-allowed; }
+    button:hover:not(:disabled) { background: #0056b3; }
 
     .loading {
       font-style: italic;
@@ -74,45 +81,79 @@
 <div class="container">
   <h2>Chat with Spring AI</h2>
 
-  <div class="input-area">
-    <input type="text" id="userInput" placeholder="Write a message..." />
-    <button onclick="sendMessage()">Send</button>
-  </div>
+  <div class="chat-box" id="chatBox"></div>
 
   <div class="loading" id="loading" style="display: none;">Loading...</div>
 
-  <div class="chat-box" id="responseBox">
-    Write something
+  <div class="input-area">
+    <input type="text" id="userInput" placeholder="Write a message..." autocomplete="off" />
+    <button id="sendBtn" onclick="sendMessage()">Send</button>
   </div>
 </div>
 
 <script>
-  function sendMessage() {
-    const input = document.getElementById("userInput");
-    const message = input.value.trim();
-    const loading = document.getElementById("loading");
-    const box = document.getElementById("responseBox");
+  const sessionId = "default-session"; // puoi cambiarlo per multiutente
+  const chatBox = document.getElementById("chatBox");
+  const input = document.getElementById("userInput");
+  const sendBtn = document.getElementById("sendBtn");
+  const loading = document.getElementById("loading");
 
-    if (!message) {
-      box.textContent = "Write message.";
-      return;
-    }
+  // Carica storico all'avvio
+  window.onload = loadHistory;
 
-    loading.style.display = "block";
-    box.textContent = "";
+  // Invio con Enter
+  input.addEventListener("keydown", function(event) {
+    if (event.key === "Enter") sendMessage();
+  });
 
-    fetch(`/api/ollama/${encodeURIComponent(message)}`)
-      .then(response => response.text())
-      .then(data => {
-        loading.style.display = "none";
-        box.textContent = data;
+  function appendMessage(role, text) {
+    const div = document.createElement("div");
+    div.classList.add("message", role);
+    if (role === "user")      div.innerHTML = `<b>You:</b> ${text}`;
+    else if (role === "assistant") div.innerHTML = `<b>AI:</b> ${text}`;
+    else                       div.innerHTML = `<i>${role}</i>: ${text}`;
+    chatBox.appendChild(div);
+    chatBox.scrollTop = chatBox.scrollHeight;
+  }
+
+  function loadHistory() {
+    fetch(`/chat/${sessionId}`)
+      .then(res => res.json())
+      .then(history => {
+        chatBox.innerHTML = "";
+        history.forEach(msg => appendMessage(msg.messageType.toLowerCase(), msg.text));
       })
-      .catch(error => {
-        loading.style.display = "none";
-        box.textContent = "Errore: " + error;
-      });
+      .catch(() => { chatBox.innerHTML = "<i>No history.</i>"; });
+  }
 
+  function sendMessage() {
+    const message = input.value.trim();
+    if (!message) return;
+
+    appendMessage("user", message);
     input.value = "";
+    input.disabled = true;
+    sendBtn.disabled = true;
+    loading.style.display = "block";
+
+    fetch(`/chat/${sessionId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: message
+    })
+      .then(res => res.json())
+      .then(aiMsg => {
+        appendMessage("assistant", aiMsg.text);
+        input.disabled = false;
+        sendBtn.disabled = false;
+        loading.style.display = "none";
+      })
+      .catch(err => {
+        appendMessage("system", "Errore: " + err);
+        input.disabled = false;
+        sendBtn.disabled = false;
+        loading.style.display = "none";
+      });
   }
 </script>
 </body>

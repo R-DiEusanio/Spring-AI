@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ai-memory
+    username: postgres
+    password: Riccardo2001
+    driver-class-name: org.postgresql.Driver
+
+  ai:
+    ollama:
+      base-url: http://localhost:11434
+      model: deepseek-r1:1.5b
+
+
+
+
+#http://localhost:8080
