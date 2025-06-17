@@ -1,4 +1,4 @@
-package com.artificial.SpringAIDemo;
+package com.artificial.SpringAIDemo.controller;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.ollama.OllamaChatModel;
