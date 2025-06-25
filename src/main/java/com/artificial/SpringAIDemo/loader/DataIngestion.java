@@ -26,7 +26,7 @@ public class DataIngestion {
         this.vectorStore = vectorStore;
     }
 
-    @Value("classpath:documents/VocabSecrets.pdf")
+    @Value("classpath:documents/IELTS_Band9_VocabSecrets.pdf")
     private Resource resource;
 
     @PostConstruct

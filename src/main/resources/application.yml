@@ -7,18 +7,21 @@ spring:
       chat:
         model: deepseek-r1:1.5b
       embedding:
-        options:
-          model: nomic-embed-text
-
+        model: nomic-embed-text
     vectorstore:
       pgvector:
+        dimensions: 768
         initialize-schema: true
         index-type: HNSW
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ai-memory
+    url: jdbc:postgresql://localhost:5433/vector_database
     username: postgres
     password: Riccardo2001
     driver-class-name: org.postgresql.Driver
 
-#http://localhost:8080
+server:
+  port: 8084
+
+
+#http://localhost:8084
