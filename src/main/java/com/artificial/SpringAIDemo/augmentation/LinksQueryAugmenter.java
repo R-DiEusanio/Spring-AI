@@ -16,19 +16,23 @@ import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugment
 public class LinksQueryAugmenter {
     public ContextualQueryAugmenter create() {
         PromptTemplate promptTemplate = new PromptTemplate("""
-                Context information is below.
+                You are a helpful assistant.
+                Using only the provided context, answer the question below.
+                Respond only with the direct answer. Do not explain, do not show your reasoning, and do not provide any additional information.
                 ---------------------
                 {question_answer_context}
                 ---------------------
-                Given the context and no prior knowledge, answer the query.
-                If the answer is not in the context, respond: "Follow links provided below."
-                Query: {query}
+                Only provide the final, direct answer.\s
+                DO NOT show reasoning, explanations, or any step-by-step logic.
+                If the answer is not found in the provided context, reply: "I don't know".
+                Question: {query}
                 Answer:
                 """);
 
         PromptTemplate emptyContextTemplate = new PromptTemplate("""
-                Given the context and no prior knowledge, answer the query.
-                If the answer is not in the context, respond: "Follow links provided below."
+        No context available.
+        Only answer if you are certain of the correct response.
+        Otherwise reply: "I don't know".
         """);
 
         return ContextualQueryAugmenter.builder()
