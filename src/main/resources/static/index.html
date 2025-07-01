@@ -36,6 +36,23 @@
     .textarea-resize-none {
         resize: none;
     }
+    .spinner-border {
+        width: 2rem;
+        height: 2rem;
+        vertical-align: middle;
+        margin-right: 10px;
+    }
+    .loader-message {
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        background: #eef2ff;
+        border-left: 5px solid #6366f1;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-size: 1.05rem;
+    }
   </style>
 </head>
 <body>
@@ -43,7 +60,7 @@
   <h2 class="mb-4 text-center text-primary">💬 AI Chat Demo</h2>
   <div id="messages"></div>
   <form id="chatForm" class="d-flex flex-column gap-2">
-    <textarea id="userInput" class="form-control textarea-resize-none" rows="3" placeholder="Scrivi il tuo messaggio..." required></textarea>
+    <textarea id="userInput" class="form-control textarea-resize-none" rows="3" placeholder="Scrivi il tuo messaggio..." required autofocus></textarea>
     <button type="submit" class="btn btn-primary">Invia</button>
   </form>
 </div>
@@ -51,6 +68,7 @@
   const form = document.getElementById('chatForm');
   const input = document.getElementById('userInput');
   const messagesDiv = document.getElementById('messages');
+  let loaderDiv = null;
 
   function addMessage(text, sender) {
       const msgDiv = document.createElement('div');
@@ -62,6 +80,21 @@
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
   }
 
+  function showLoader() {
+      loaderDiv = document.createElement('div');
+      loaderDiv.classList.add('loader-message');
+      loaderDiv.innerHTML = `<div class="spinner-border text-primary" role="status"></div> <span>L'AI sta pensando...</span>`;
+      messagesDiv.appendChild(loaderDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function removeLoader() {
+      if (loaderDiv) {
+          messagesDiv.removeChild(loaderDiv);
+          loaderDiv = null;
+      }
+  }
+
   form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const userText = input.value.trim();
@@ -70,22 +103,32 @@
       addMessage(userText, 'user');
       input.value = '';
       input.disabled = true;
+      showLoader();
 
       try {
-          const response = await fetch('/chat', {
+          const response = await fetch('/chat/ask', {
               method: 'POST',
               headers: {'Content-Type': 'text/plain'},
               body: userText
           });
+          removeLoader();
+          if (!response.ok) {
+              addMessage('Errore dal server: ' + response.status, 'ai');
+              return;
+          }
           const aiText = await response.text();
           addMessage(aiText, 'ai');
       } catch (err) {
+          removeLoader();
           addMessage('Errore di connessione al server.', 'ai');
       } finally {
           input.disabled = false;
           input.focus();
       }
   });
+
+  // Autofocus al caricamento
+  window.onload = () => input.focus();
 </script>
 </body>
 </html>

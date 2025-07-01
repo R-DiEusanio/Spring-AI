@@ -1,62 +1,32 @@
 package com.artificial.SpringAIDemo.controller;
 
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.document.Document;
-import org.springframework.ai.vectorstore.SearchRequest;
-import org.springframework.ai.vectorstore.VectorStore;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.artificial.SpringAIDemo.client.DiscentiClient;
+import com.artificial.SpringAIDemo.data.DiscenteDTO;
+import com.artificial.SpringAIDemo.service.AiService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/chat")
 public class AiController {
 
-    private final ChatModel chatModel;
-    private final VectorStore vectorStore;
-    private final List<UserMessage> history = new ArrayList<>();
+    @Autowired
+    private DiscentiClient discentiClient;
 
-    public AiController(
-            @Qualifier("ollamaChatModel") ChatModel chatModel,
-            VectorStore vectorStore
-    ) {
-        this.chatModel = chatModel;
-        this.vectorStore = vectorStore;
-    }
+    @Autowired
+    private AiService aiService;
 
-    @PostMapping
-    public String chat(@RequestBody String userQuestion) {
-        // Eseguo retrieval dal vector store
-        List<Document> docs = vectorStore.similaritySearch(
-                SearchRequest.builder()
-                        .query(userQuestion)
-                        .topK(4)
-                        .build()
-        );
+    @PostMapping("/ask")
+    public ResponseEntity<String> askAI(@RequestBody String domanda) {
+        if (domanda.toLowerCase().contains("students who come from teramo")) {
+            List<DiscenteDTO> teramani = discentiClient.getDiscentiByCitta("Teramo");
+            String risposta = aiService.answerWithContext(domanda, teramani);
+            return ResponseEntity.ok(risposta);
+        }
 
-        String context = docs.stream()
-                .map(Document::getText)
-                .collect(Collectors.joining("\n---\n"));
-
-        String enriched = """
-            Usa il seguente contesto per rispondere all'utente:
-            %s
-
-            Domanda: %s
-            """
-                .formatted(context, userQuestion);
-
-        history.add(new UserMessage(enriched));
-
-        Prompt prompt = new Prompt(new ArrayList<>(history));
-        return chatModel.call(prompt)
-                .getResult()
-                .getOutput()
-                .getText();
+        return ResponseEntity.ok(aiService.ask(domanda));
     }
 }
