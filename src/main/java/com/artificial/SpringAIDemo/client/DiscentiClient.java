@@ -25,7 +25,7 @@ public class DiscentiClient {
 
     public List<DiscenteDTO> getAllDiscenti() {
         return webClient.get()
-                .uri("/api/discenti")
+                .uri("/discenti")
                 .retrieve()
                 .bodyToFlux(DiscenteDTO.class)
                 .collectList()
@@ -35,7 +35,7 @@ public class DiscentiClient {
     public List<DiscenteDTO> getDiscentiByCitta(String citta) {
         return webClient.get()
                 .uri(uriBuilder -> uriBuilder
-                        .path("/api/discenti")
+                        .path("/discenti")
                         .queryParam("citta", citta)
                         .build())
                 .retrieve()
@@ -46,7 +46,7 @@ public class DiscentiClient {
 
     public DiscenteDTO getDiscenteById(Long id) {
         return webClient.get()
-                .uri("/api/discenti/{id}", id)
+                .uri("/discenti/{id}", id)
                 .retrieve()
                 .bodyToMono(DiscenteDTO.class)
                 .block();
