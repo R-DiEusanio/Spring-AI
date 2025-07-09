@@ -27,4 +27,10 @@ public class AiController {
 
         return ResponseEntity.ok(rispostaConContext);
     }
+
+    @PostMapping("/command")
+    public ResponseEntity<String> handleAICommand(@RequestBody String userInput) {
+        String result = aiService.processUserInput(userInput);
+        return ResponseEntity.ok(result);
+    }
 }

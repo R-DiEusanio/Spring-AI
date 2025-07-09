@@ -1,5 +1,6 @@
 package com.artificial.SpringAIDemo.augmentation;
 
+
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugmenter;
 
@@ -10,7 +11,7 @@ import org.springframework.ai.rag.generation.augmentation.ContextualQueryAugment
  * - Se c'è contesto, la risposta sarà basata su di esso.
  * - Se non c'è contesto, la risposta invita l'utente a seguire i link forniti.
  * Utile per sistemi RAG (Retrieval Augmented Generation) e chatbot documentali.
- */
+*/
 
 
 public class LinksQueryAugmenter {
@@ -38,3 +39,4 @@ public class LinksQueryAugmenter {
                 .build();
     }
 }
+

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * Advisor che aggiunge i link dei documenti utilizzati come footer nella risposta dell'AI.
  * Se non ci sono documenti, restituisce la risposta originale senza footer.
- */
+*/
 
 
 public class LinksAppendingAdvisor implements BaseAdvisor {
@@ -109,3 +109,4 @@ public class LinksAppendingAdvisor implements BaseAdvisor {
         this.order = order;
     }
 }
+

@@ -1,13 +1,18 @@
+version: '3.8'
+
 services:
   postgres:
-    image: pgvector/pgvector:pg17
+    image: pgvector/pgvector:pg16
+    container_name: vector-postgres
     environment:
-      POSTGRES_DB: ai-memory
+      POSTGRES_DB: vector_database
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: Riccardo2001
     ports:
-      - '5434:5432'
-  ollama:
-    image: 'ollama/ollama:latest'
-    ports:
-      - '11434:11434'
+      - '5433:5432'
+    volumes:
+      - pgvector_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgvector_data:
